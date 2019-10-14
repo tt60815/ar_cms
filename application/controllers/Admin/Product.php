@@ -11,8 +11,10 @@ class Product extends AR_ADMIN_Controller
 	}
 	public function index()
 	{
+
+		$data['title']="產品列表";
 		$this->load->view("admin/tp/header");
-		$this->load->view("admin/product/list");
+		$this->load->view("admin/product/list",$data);
 		$this->load->view("admin/tp/footer");
 	}
 	public function create()
