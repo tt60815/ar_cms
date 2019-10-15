@@ -392,13 +392,18 @@
                                         <label class="col-sm-2 control-label">選擇樣板</label>
                                         <div class="col-sm-10">
                                             <select id="edittp" class="selectpicker" data-live-search="true" onChange="select_edittp(this.options[this.selectedIndex].value)">
-                                                <option data-tokens="mustard" value="1">樣板一</option>
+                                            <option data-tokens="mustard" value="-1">空白</option>
+                                                <option data-tokens="mustard" value="">樣板一</option>
                                                 <option data-tokens="mustard" value="2">樣板二</option>
                                                 <option data-tokens="mustard" value="3">樣板三</option>
                                             </select>
                                             <script type="text/javascript">
                                                 function select_edittp(edittp_id) {
-                                                    var stripedHtml = $("#edittp_div").html();
+                                                        if(edittp_id==-1){
+                                                            $('#summernote').summernote('code', '');
+                                                            return;
+                                                        }
+                                                    var stripedHtml = $("#edittp_div"+edittp_id).html();
                                                     $('#summernote').summernote('code', stripedHtml);
                                                 }
                                             </script>
@@ -426,6 +431,8 @@
                             </div>
                         </div>
                         <div id="edittp_div" style="display:none"><? $this->load->view("admin/tp/edittp") ?></div>
+                        <div id="edittp_div2" style="display:none"><? $this->load->view("admin/tp/edittp2") ?></div>
+                        <div id="edittp_div3" style="display:none"><? $this->load->view("admin/tp/edittp3") ?></div>
 
 
 
