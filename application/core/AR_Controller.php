@@ -10,7 +10,8 @@ class AR_Controller extends CI_Controller {
     public function pre($data){
     	echo "<pre>";
     	print_r($data);
-    	echo "</pre>";
+        echo "</pre>";
+        exit;
     }
  
 }

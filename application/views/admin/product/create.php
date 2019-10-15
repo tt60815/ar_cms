@@ -283,7 +283,8 @@
                                     <div class="form-group">
                                         <label for="input-Default" class="col-sm-2 control-label">產品名稱</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="product_name" class="form-control" id="input-Default" value="">
+
+                                            <input type="text" name="product_name" class="form-control" id="input-Default" value="<?= (isset($_SESSION["admin"]["product"]["product_name"])) ? $_SESSION["admin"]["product"]["product_name"]:"" ;?>">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -291,13 +292,15 @@
                                         <div class="col-sm-10">
                                             <select name="product_class_id" class="selectpicker" data-live-search="true" onChange="select_product_class(this.options[this.selectedIndex].value)">
                                                 <? foreach ($product_class as  $product_class_item) { ?>
-                                                    <option data-tokens="mustard" value="<?= $product_class_item["product_class_id"] ?>"><?= $product_class_item["product_class_name"] ?></option>
+                                                    <option <? if (isset($_SESSION["admin"]["product"]["product_class_id"])&&$product_class_item["product_class_id"] == $_SESSION["admin"]["product"]["product_class_id"]) {
+                                                                    echo "selected='selected'";
+                                                                } ?> data-tokens="mustard" value="<?= $product_class_item["product_class_id"] ?>"><?= $product_class_item["product_class_name"] ?></option>
                                                 <? } ?>
                                             </select>
                                             <script type="text/javascript">
                                                 function select_product_class(product_class_id) {
                                                     $.ajax({
-                                                        url: "<?= base_url() ?>admin/ajax/get_Product_class_tag/" + product_class_id + "/" + 0,
+                                                        url: "<?= base_url() ?>admin/product/ajax_get_Product_class_tag/" + product_class_id + "/" + 0,
                                                         success: function(res) {
                                                             $("#product_tag_div").html(res);
                                                         }
@@ -315,19 +318,19 @@
                                     <div class="form-group">
                                         <label for="input-Default" class="col-sm-2 control-label">原價</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="product_price" class="form-control" id="input-Default" value="">
+                                            <input type="text" name="product_price" class="form-control" id="input-Default" value="<?= (isset($_SESSION["admin"]["product"]["product_price"])) ? $_SESSION["admin"]["product"]["product_price"]:"" ;?>">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="input-Default" class="col-sm-2 control-label">特價</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="product_special_price" class="form-control" id="input-Default" value="">
+                                            <input type="text" name="product_special_price" class="form-control" id="input-Default" value="<?= (isset($_SESSION["admin"]["product"]["product_special_price"])) ? $_SESSION["admin"]["product"]["product_special_price"]:"" ;?>">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="input-Default" class="col-sm-2 control-label">排序</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="product_sequence" class="form-control" id="input-Default" value="">
+                                            <input type="text" name="product_sequence" class="form-control" id="input-Default" value="<?= (isset($_SESSION["admin"]["product"]["product_sequence"])) ? $_SESSION["admin"]["product"]["product_sequence"]:"" ;?>">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -382,7 +385,7 @@
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">產品規格</label>
                                         <div class="col-sm-10">
-                                            <textarea name="product_description" class="form-control"></textarea>
+                                            <textarea name="product_description" class="form-control"><?= (isset($_SESSION["admin"]["product"]["product_description"])) ? $_SESSION["admin"]["product"]["product_description"]:"" ;?></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -405,6 +408,7 @@
                                         <label class="col-sm-2 control-label">產品描述</label>
                                         <div class="col-sm-10">
                                             <textarea required="required" id="summernote" class="form-control" name="product_content" placeholder="輸入內文">
+                                            <?= (isset($_SESSION["admin"]["product"]["product_content"])) ? $_SESSION["admin"]["product"]["product_content"]:"" ;?>
                                              </textarea>
                                         </div>
                                     </div>

@@ -301,7 +301,7 @@
                                             <script type="text/javascript">
                                                 function select_product_class(product_class_id) {
                                                     $.ajax({
-                                                        url: "<?= base_url() ?>admin/ajax/get_Product_class_tag/" + product_class_id + "/" + <?= $product["product_id"] ?>,
+                                                        url: "<?= base_url() ?>admin/product/ajax_get_Product_class_tag/" + product_class_id + "/" + <?= $product["product_id"] ?>,
                                                         success: function(res) {
                                                             $("#product_tag_div").html(res);
                                                         }
@@ -416,7 +416,7 @@
                                     <script type="text/javascript">
                                         function del_product_pic(product_pic_id) {
                                             $.ajax({
-                                                url: "<?= base_url() ?>admin/ajax/del_product_pic/" + product_pic_id,
+                                                url: "<?= base_url() ?>admin/product/ajax_del_product_pic/" + product_pic_id,
                                                 success: function(res) {
                                                     $("#product_pic_div").html(res);
                                                 }
@@ -424,7 +424,7 @@
                                         }
                                         function modify_products_pic(product_pic_id, value) {
                                             $.ajax({
-                                                url: "<?= base_url() ?>admin/ajax/modify_products_pic/" + product_pic_id + "/" + value,
+                                                url: "<?= base_url() ?>admin/product/ajax_modify_products_pic/" + product_pic_id + "/" + value,
                                                 success: function(res) {
                                                     $("#product_pic_div").html(res);
                                                 }

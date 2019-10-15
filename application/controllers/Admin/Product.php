@@ -12,19 +12,39 @@ class Product extends AR_ADMIN_Controller
 	public function index()
 	{
 
-		$data['title']="產品列表";
+		$data['title'] = "產品列表";
 		$this->load->view("admin/tp/header");
-		$this->load->view("admin/product/list",$data);
+		$this->load->view("admin/product/list", $data);
 		$this->load->view("admin/tp/footer");
 	}
 	public function create()
 	{
 		$data["product_class"] = $this->Product_class_model->get_all();
 		$product_class = $data["product_class"];
-		$this_class_tag = $this->Product_tag_model->get_Product_class_tag($product_class[0]["product_class_id"]);
+		$product_class_id = $product_class[0]["product_class_id"];
+		if (isset($_SESSION["admin"]["product"]['product_class_id'])) {
+			if (!empty($_SESSION["admin"]["product"]['product_class_id'])) {
+				$product_class_id = $_SESSION["admin"]["product"]['product_class_id'];
+			}
+		}
+		$this_class_tag = $this->Product_tag_model->get_Product_class_tag($product_class_id);
+		$product_tag = [];
+		if (isset($_SESSION["admin"]["product"]['tag'])) {
+			$product_tag = $_SESSION["admin"]["product"]['tag'];
+		}
+		 
 		$str = '';
 		foreach ($this_class_tag as $this_class_tag_item) {
+
+
 			$ischecked = '';
+
+			foreach ($product_tag as $product_tag_item) {
+				if ($product_tag_item == $this_class_tag_item['product_tag_id']) {
+					$ischecked = 'checked';
+					break;
+				}
+			}
 			$str .= '<label><input ' . $ischecked . ' type="checkbox" value="' . $this_class_tag_item['product_tag_id'] . '" name="tag[]">' . $this_class_tag_item['product_tag_name'] . '</label>';
 			if ($this_class_tag_item['product_tag_name'] == '其他') {
 				$str .= " <input type='hidden' value=" . $this_class_tag_item['product_tag_id'] . " name='tagorther'>";
@@ -45,18 +65,68 @@ class Product extends AR_ADMIN_Controller
 		}
 		$product_id = -1;
 		if (empty($_POST['product_id'])) {
+
+			if (!$this->check_send__data()) {
+				header("refresh:0 ; " . base_url() . "admin/product/create/");
+				return;
+			}
 			$this->db->insert("product", array("product_name" => ""));
 			$product_id = $this->db->insert_id();
 		} else {
 			$product_id = $_POST['product_id'];
 		}
 		$this->update_send_data_img($product_id);
+
+
 		$this->Product_model->update_send_data($product_id);
 		$this->update_send_data_tag($product_id);
 		echo "<script>alert('操作完成');</script>";
 		header("refresh:0 ; " . base_url() . "admin/product/update/" . $product_id);
 		return;
 	}
+	public function check_send__data()
+	{
+
+		$product_is_use = 0;
+		if (!empty($_POST['product_is_use'])) {
+			$product_is_use = 1;
+		}
+
+		if (!empty($_POST['tag'])) {
+
+			$tag = $_POST['tag'];
+		} else {
+			$tag = [$_POST['tagorther']];
+		}
+		$data = array(
+			"product_name" => $_POST['product_name'],
+			"product_class_id" => $_POST['product_class_id'],
+			"product_price" => $_POST['product_price'],
+			"tag" => $tag,
+			"product_special_price" => $_POST['product_special_price'],
+			"product_sequence" => $_POST['product_sequence'],
+			"product_description" => $_POST['product_description'],
+			"product_content" => $_POST['product_content'],
+			"product_is_use" => $product_is_use
+		);
+		$_SESSION["admin"]["product"] = $data;
+
+		if (empty($_POST['product_name'])) {
+			echo "<script>alert('產品名稱不得空白');</script>";
+			return false;
+		}
+		if (!is_numeric($_POST['product_price'])) {
+			$_SESSION["admin"]["product"]['product_price'] = "";
+			echo "<script>alert('價格必須為數字');</script>";
+			return false;
+		}
+		unset($_SESSION["admin"]["product"]);
+
+		return true;
+	}
+
+
+
 	public function update_send_data_tag($product_id)
 	{
 		$str = "DELETE FROM product_tag_link  WHERE `product_tag_link_product_id` =" . $product_id;
@@ -175,5 +245,85 @@ class Product extends AR_ADMIN_Controller
 	public function delete()
 	{
 		echo "刪除商品";
+	}
+
+
+
+	//AJAX
+
+	public function AJAX_get_Product_class_tag($Product_class_id, $Product_id = 0)
+	{
+		$this_class_tag =    $this->Product_tag_model->get_Product_class_tag($Product_class_id);
+		$product_tag = $this->Product_tag_model->get_Product_tag_link($Product_id);
+		$str = '';
+		foreach ($this_class_tag as $this_class_tag_item) {
+			$ischecked = '';
+			foreach ($product_tag as $product_tag_item) {
+				if ($product_tag_item['product_tag_link_product_tag_id'] == $this_class_tag_item['product_tag_id']) {
+					$ischecked = 'checked';
+					break;
+				}
+			}
+			$str .= '<label><input ' . $ischecked . ' type="checkbox" value="' . $this_class_tag_item['product_tag_id'] . '" name="tag[]">' . $this_class_tag_item['product_tag_name'] . '</label>';
+			if ($this_class_tag_item['product_tag_name'] == '其他') {
+				$str .= " <input type='hidden' value=" . $this_class_tag_item['product_tag_id'] . " name='tagorther'>";
+			}
+		}
+		echo $str;
+	}
+	public function AJAX_del_product_pic($product_wh_id)
+	{
+		$product_wh = $this->Product_model->get_Product_pic_use_product_pic_id($product_wh_id)[0];
+		unlink("upload/images/" . $product_wh["product_wh_pic"]);
+		$this->db->query("DELETE FROM product_wh  WHERE `product_wh_id` =" . $product_wh_id);
+
+		echo  $this->AJAX_load_img_div($product_wh['product_wh_product_id']);
+	}
+	public function AJAX_modify_products_pic($product_wh_id, $value)
+	{
+		$product_wh = $this->Product_model->get_Product_pic_use_product_pic_id($product_wh_id)[0];
+		$data = array(
+			'product_wh_sequence' => $value
+		);
+		$this->db->where('product_wh_id', $product_wh_id);
+		$this->db->update('product_wh', $data);
+
+		echo  $this->AJAX_load_img_div($product_wh['product_wh_product_id']);
+	}
+
+	public function AJAX_load_img_div($product_id)
+	{
+
+		$Product_pic = $this->Product_model->get_Product_pic($product_id);
+		$str = "";
+		foreach ($Product_pic as $product_pic_item) {
+			$str .= '<div class="col-md-3">
+                                <div class="form-group">
+                                    <table class="table table-hover table-condensed table-bordered">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <img  src="' . base_url() . 'upload/images/' . $product_pic_item["product_wh_pic"] . '" width="100%;">
+                                                </td>
+                                            </tr>
+                                             <tr>
+                                                <td>
+                                                <input type="number" class="form-control" placeholder="排序" min="0" value="' . $product_pic_item["product_wh_sequence"] . '" onblur="modify_products_pic(' . $product_pic_item["product_wh_id"] . ', this.value);">
+                                                </td>
+                                                <td>
+                                                <a class="btn btn-md" title="刪除檔案" onclick="if (confirm(\'確定刪除產品圖片嗎?\')) {
+                                                            del_product_pic(' . $product_pic_item["product_wh_id"] . ')
+                                                        }
+                                                        return false;">
+                                                    <i class="fa fa-remove"></i>刪除
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>';
+		}
+		echo $str;
 	}
 }
